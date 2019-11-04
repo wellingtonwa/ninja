@@ -1,0 +1,52 @@
+include ../template
+
+script. 
+    $(function () {
+        var socket = io();
+        socket.on('db restore', (msg) => {
+            $('#stdout').append(msg);
+        });
+    });
+
+    $(document).ready(function () {
+        $("#theForm").submit(function(event){
+            event.preventDefault(); //prevent default action 
+            var post_url = $(this).attr("action"); //get form action url
+            var request_method = $(this).attr("method"); //get form GET/POST method
+            var form_data = new FormData(this); //Creates new FormData object
+            $.ajax({
+                url : post_url,
+                type: request_method,
+                data : form_data,
+                contentType: false,
+                cache: false,
+                processData:false
+            }).done(function(response){ //
+                console.log(response);
+            });
+        });
+
+        $('#limpar-texto').click(function() {
+            $('#stdout').html("Limpo!")
+        });
+    });
+
+.container.is-fluid
+    .notification
+        h1.title Restaurar banco de dados
+        form#theForm(action="/restaurar" enctype="multipart/data-form" method="POST")
+            .field.is-horizontal
+                .field-label.is-normal
+                    label.label(for="arquivo") Arquivo de backup:
+                .field-body
+                    .field
+                        .control
+                            input.input(type='file', placeholder='Informe o arquivo de Backup' id="arquivo" name='arquivo')
+            .has-text-centered
+                input.button.is-hcentered.is-info(type="submit" value="Restaurar")
+                a.button.is-warning(href="/") Voltar
+        br 
+        .box
+            .feedback#stdout ...
+        br
+        a#limpar-texto.button.is-hcentered Limpar

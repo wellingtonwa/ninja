@@ -1,0 +1,39 @@
+include ../template
+
+mixin mensagem(text) 
+    .columns.is-mobile.is-centered#mensagem
+        .column.is_half.is-offset-one-quarter
+            article.message.is-primary.is-centered(style="max-width:500px;")
+                .message-header 
+                    p Mensagem
+                    button.delete(aria-label="delete")
+                .message-body= text
+
+script. 
+    $(document).ready(function () {
+        $(".delete").click(function() {
+            $("#mensagem").hide();
+        });
+            
+    });
+
+container.is-fluid
+    .notification
+
+        if mensagem
+            +mensagem(`${mensagem}`)
+
+        h1.title Configurações do Ninja
+        form#theForm(action="/configs" method="POST")
+            each valorConfig in configs
+                .field.is-horizontal
+                    .field-label.is-normal
+                        label.label #{valorConfig.property}
+                    .field-body
+                        .field
+                            .control
+                                input.input(type='text' name=`${valorConfig.property}` value=`${valorConfig.value}`)
+            .has-text-centered
+                input.button.is-hcentered.is-info(type="submit" value="Salvar")
+                a.button.is-warning(href="/") Voltar
+    

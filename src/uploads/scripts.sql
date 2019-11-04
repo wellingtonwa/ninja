@@ -1,0 +1,12 @@
+UPDATE  mlf_config_cofins SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_csll SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_icms SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_icms_da SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_icms_difal SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_icmsst SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_ipi SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_irpj SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_irrf SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_pis SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_retencao_fonte SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
+UPDATE  mlf_config_simples_nacional SET notficacao_vencimento_envio_email = FALSE,  notficacao_vencimento = FALSE;
