@@ -26,10 +26,25 @@ async function restaurar(file, req) {
     const nomeBanco = req.body['nome-banco'];
     const link = req.body.link;
 
-    await getDownloadUrl(link);
-
-    await getRequestParam();
-    var url = await getDirectLink(); 
+    try {
+        await getDownloadUrl(link);
+    } catch(ex) {
+        emitirMensagemSemFmt(req, `Status code: ${ex.statusCode} - ${ex.body}. Execução Finalizada.`);
+        return;
+    }
+    try {
+        await getRequestParam();
+    } catch(ex) {
+        emitirMensagemSemFmt(req, `Status code: ${ex.statusCode} - ${ex.body}. Execução Finalizada.`);
+        return;
+    }
+    var url;
+    try {
+        url = await getDirectLink(); 
+    } catch(ex) {
+        emitirMensagemSemFmt(req, `Status code: ${ex.statusCode} - ${ex.body}. Execução Finalizada.`);
+        return;
+    }
 
     const direct_link = JSON.parse(url.body).direct_link;
     const nomeArquivo = getFileName(direct_link);

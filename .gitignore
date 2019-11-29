@@ -106,3 +106,8 @@ typings/
 .history
 
 # End of https://www.gitignore.io/api/node,visualstudiocode
+configs/files/*
+yarn.lock
+uploads/*
+package-lock.json
+yarn.lock

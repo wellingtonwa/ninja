@@ -25,6 +25,13 @@ router.post('/', async function (req, res) {
     res.render('configs/index', {configs:configs, mensagem: "Informações Recebidas"});
 });
 
+router.get('/dados', async function(req, res) {
+ 
+    var configs = await getDadosArquivoConfig();
+
+    res.send(JSON.stringify(configs));
+});
+
 async function saveDadosArquivoConfig(dados) {
     var stringInformacoes = Object.keys(dados).map(propriedade => `${propriedade}=${dados[propriedade]}`).join("\r\n");
     return await writeFile(CAMINHO_CONFIG, stringInformacoes);

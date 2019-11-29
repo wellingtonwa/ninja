@@ -25,16 +25,22 @@ router.get('/', async function(req, res) {
     res.render('rodarSql/index', {bases: dbNames});
 });
 
+router.get('/bancos', async function(req, res) {
+    var dbNames = await getDbnames();
+    res.send(JSON.stringify(dbNames));
+});
+
 router.post('/', async function (req, res) {
     
     var hasErro = false;
+    console.log(req.body);
 
     if(!req.body.nome_banco){
-        emitirMensagemSemFmt(req, "<br/>----Informe o Banco de dados que os comandos serão executados");
+        emitirMensagemSemFmt(req, "----Informe o Banco de dados que os comandos serão executados");
         hasErro = true;
     } 
     if(!req.body.sql){
-        emitirMensagemSemFmt(req, "<br/>-----Informe os comandos serão executados");
+        emitirMensagemSemFmt(req, "-----Informe os comandos serão executados");
         hasErro = true;
     }
 
@@ -47,14 +53,14 @@ router.post('/', async function (req, res) {
         console.log(configs);
         pool.query(sql, (err, res) => {
             if(res) {
-                emitirMensagemSemFmt(req, "<br/>SCRIPT EXECUTADO!");
+                emitirMensagemSemFmt(req, "SCRIPT EXECUTADO!");
             }else {
-                emitirMensagemSemFmt(req, "<br/>ERRO AO RODAR O SCRIPT! erro: " + err);
+                emitirMensagemSemFmt(req, "ERRO AO RODAR O SCRIPT! erro: " + err);
             }
         })
     }
 
-    res.render('rodarSql/index');
+    //res.render('rodarSql/index');
 });
 
 
