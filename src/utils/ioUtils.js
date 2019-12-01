@@ -15,4 +15,14 @@ const listFiles = dirPath => {
     });
 };
 
-module.exports = {listFiles};
+const apagarArquivo = (arquivo) => {
+    const dir = path.join(__dirname, `../../uploads/${arquivo}`);
+    return new Promise((resolve, reject) => {
+        fs.unlink(dir, err => {
+            if (err) reject(err);
+            resolve(`${arquivo} - arquivo apagado!`); 
+        });
+    });
+};
+
+module.exports = {listFiles, apagarArquivo};
