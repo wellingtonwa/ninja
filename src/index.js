@@ -11,6 +11,7 @@ var configsController = require('./controller/configsController');
 var rodarSqlController = require('./controller/rodarSqlController');
 var sqlDaVersaoController = require('./controller/sqlDaVersaoController');
 var limparPastaUploadController = require('./controller/limparPastaUploadController');
+var dropDatabaseController = require('./controller/dropDatabaseController');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -30,6 +31,7 @@ app.use('/configs', configsController.router);
 app.use('/rodar-sql', rodarSqlController);
 app.use('/sql-versao', sqlDaVersaoController);
 app.use('/limpar-pasta', limparPastaUploadController);
+app.use('/apagar-db', dropDatabaseController);
 
 var server = app.listen(5000);
 
