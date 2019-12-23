@@ -1,5 +1,6 @@
 const https = require("https");
 const fs = require("fs");
+const path = require("path");
 
 const REGEX_SERVER = /(https:\/\/[a-z._-]*)/g;
 
@@ -7,10 +8,26 @@ async function download(url, dest) {
     return new Promise((resolve, reject) => {
         const file = fs.createWriteStream(dest);
 
+        console.log(path.resolve(__dirname, dest));
+
         const request = https.get(url, async response => {
+            
+            var len = parseInt(response.headers['content-length'], 10);
+            var body = "";
+            var cur = 0;
+            var total = len / 1048576; //1048576 - bytes in  1Megabyte
+
+            response.on("data", function(chunk) {
+                body += chunk;
+                cur += chunk.length;
+                if (((100.0 * cur / len).toFixed(2) % 10) === 0)
+                    console.log("Downloading " + (100.0 * cur / len).toFixed(2) + " percent " + (cur / 1048576).toFixed(2) + " mb" + ". Total size: " + total.toFixed(2) + " mb");
+            });
+
             if (response.statusCode === 200) {
                 response.pipe(file);
             }
+
             else if (response.statusCode === 301) {
                 const dados_url = await REGEX_SERVER.exec(url);
                 const base_url = dados_url[1];
