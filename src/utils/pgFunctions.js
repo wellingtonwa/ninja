@@ -60,17 +60,19 @@ const getDbnames = async () => {
     });
 };
 
-const drop = (db, msg) => {
-    pgtools.dropdb(config, db.dbname, function (err) {
-        if (err) {
-            console.error(db.dbname, '>>>>ERRO<<<<<', err);
-            msg.channel.send(`${db.dbname} UTILIZADO POR OUTRO CLIENTE`);
-        }
-        else {
-            console.log(db.dbname, ' >>>>DELETADO<<<< ');
-            msg.channel.send(`${db.dbname} >>>>DELETADO<<<<`);
-        }
+const drop = async (db) => {
+    const config = await getConfigs();
+    return new Promise((resolve, reject) => {
+        pgtools.dropdb(config, db, function (err) {
+            if (err) {
+                reject(Error(err));
+            }
+            else {
+                resolve(`${db} >>> REMOVIDO`);
+            }
+        });
     });
-}
+    
+};
 
 module.exports = { dropAll, drop,  getDbnames };

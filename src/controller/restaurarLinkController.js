@@ -7,13 +7,16 @@ const got = require('got');
 const tough = require('tough-cookie');
 const Cookie = tough.Cookie;
 const fs = require('fs');
-const httpsDownload = require('../utils/httpsDownload');
+const download = require('../utils/download');
 
 const WETRANSFER_BASE = 'https://wetransfer.com';
+const WETRANSFER_URL_REGEX = "https://we.tl/.*";
 const INIT_OF_WETRANSFER_URL = '/downloads/';
 const WETRANSFER_API_URL = WETRANSFER_BASE + '/api/v4/transfers';
 const WETRANSFER_DOWNLOAD_URL = WETRANSFER_API_URL + '/%s/download';
 const canal = 'db restore';
+
+const TINYURL_URL_REGEX = "http://tinyurl.com/.*";
 
 var transferId;
 var securityHash;
@@ -21,11 +24,37 @@ var csrfToken;
 var auxcookie;
 var urlDownload;
 
-
-async function restaurar(file, req) {
+router.post('/', function(req, res) {
+    emitirMensagemSemFmt(req, "<br/>Requisição Recebida!\nAguarde....");    
     const nomeBanco = req.body['nome-banco'];
+    if(isNomeBancoValido(nomeBanco) && req.body.link){
+        restaurar(req);
+    } else {
+        emitirMensagemSemFmt(canal, "<br/>Preciso dos campos preenchidos e válidos. ¬¬");    
+    }
+    res.render('restaurar/form');
+});
+
+async function restaurar(req) {
     const link = req.body.link;
 
+    verificarTipoLink(link, req);
+
+};
+
+async function verificarTipoLink(link, req) {
+    if (link.match(WETRANSFER_URL_REGEX)) {
+        restaurarWetransfer(link, req);
+    } else if (link.match(TINYURL_URL_REGEX)) {
+        await download(link);
+    }
+    else {
+        emitirMensagemSemFmt(req, "Link não identificado");
+    }
+}
+
+async function restaurarWetransfer(link, req) {
+    const nomeBanco = req.body['nome-banco'];
     try {
         await getDownloadUrl(link);
     } catch(ex) {
@@ -38,6 +67,7 @@ async function restaurar(file, req) {
         emitirMensagemSemFmt(req, `Status code: ${ex.statusCode} - ${ex.body}. Execução Finalizada.`);
         return;
     }
+    
     var url;
     try {
         url = await getDirectLink(); 
@@ -50,9 +80,9 @@ async function restaurar(file, req) {
     const nomeArquivo = getFileName(direct_link);
     emitirMensagemSemFmt(req, `<br/>Fazendo download do arquivo do ${nomeArquivo} ...`);
     const pathFile = path.join(__dirname, `../../uploads/${nomeArquivo}`);
+    var fileInfo;
     try {
-        await httpsDownload(direct_link, pathFile);
-        
+        fileInfo = await download(direct_link, pathFile, true);
     } catch (error) {
         console.log(error);
     }
@@ -62,16 +92,16 @@ async function restaurar(file, req) {
     exec(`psql -U postgres -c "DROP DATABASE ${nomeBanco}"`, {maxBuffer: 1024 * 50000} )
     .then(dados => {
         emitirMensagem(req, dados.stdout, "BANCO APAGADO!!!");
-        criarBanco(nomeBanco, pathFile, req);
+        criarBanco(nomeBanco, fileInfo.filePath, req);
     })
     .catch(erro => {
         emitirMensagem(req, erro.stderr, "NÃO FOI POSSÍVEL DROPAR A BASE");
         criarBanco(nomeBanco, pathFile, req);
     });
-
 }
 
 function criarBanco(nomeBanco, caminhoArquivo, req) {
+    emitirMensagemSemFmt(req, `Tentando criar banco ${nomeBanco} com o arquivo ${caminhoArquivo}`);
     exec(`psql -U postgres -c "CREATE DATABASE ${nomeBanco}"`, {maxBuffer: 1024 * 50000})
     .then(dados => {
         emitirMensagem(req, dados.stdout, "BANCO CRIADO!!! RESTAURANDO...");
@@ -87,7 +117,7 @@ function criarBanco(nomeBanco, caminhoArquivo, req) {
 
 function rodarScript(nomeBanco, req) {
     // Rodando o script obrigatório
-    exec('powershell -Command "Invoke-WebRequest https://www.dropbox.com/s/4ub6n18no37o356/scripts.sql?dl=1 -OutFile uploads/scripts.sql"')
+    download("https://www.dropbox.com/s/4ub6n18no37o356/scripts.sql?dl=1", path.resolve(__dirname, "../../uploads"))
     .then(dados => {
         emitirMensagem(req, dados.stdout, "DOWNLOAD DO SCRIPT OBRIGATÓRIO CONCLUÍDO!");
         exec(`psql -h localhost -p 5432 -d ${nomeBanco} -U postgres -f uploads/scripts.sql`)
@@ -101,19 +131,6 @@ function rodarScript(nomeBanco, req) {
     .catch(err => emitirMensagem(req, err.stderr, "ERRO AO BAIXAR O SCRIPT DA OBRIGATÓRIO!"));
 }
 
-function baixarBanco(nomeBanco, link, req) {
-    var path = "uploads";
-    download(link, link)
-    .onProgress(progress => {
-        emitirMensagem(req, " " + progress.percent);
-    })
-    .then(dados => {
-        emitirMensagem(req, dados.stdout, "DOWNLOAD DO BANCO CONCLUÍDO!");
-        criarBanco(nomeBanco, path, req);
-    })
-    .catch(err => emitirMensagem(req, err, "ERRO AO BAIXAR O BANCO"));
-}
-
 function emitirMensagem(req, saida, msg) {
     req.app.io.emit(canal, "<br/>" + saida + "<br/>" + msg);
 }
@@ -124,17 +141,6 @@ function emitirMensagemSemFmt(req, msg) {
 
 router.get('/', function(req, res) {
     res.render('restaurar-link/form');
-});
-
-router.post('/', function(req, res) {
-    emitirMensagemSemFmt(req, "<br/>Requisição Recebida!\nAguarde....");    
-    const nomeBanco = req.body['nome-banco'];
-    if(isNomeBancoValido(nomeBanco) && req.body.link){
-        restaurar(req.file, req);
-    } else {
-        emitirMensagemSemFmt(canal, "<br/>Preciso dos campos preenchidos e válidos. ¬¬");    
-    }
-    res.render('restaurar/form');
 });
 
 function isNomeBancoValido(nomeBanco){

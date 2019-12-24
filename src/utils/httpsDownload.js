@@ -1,14 +1,13 @@
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const salvarArquivo = require("./ioUtils").saveDownloadedFile;
 
 const REGEX_SERVER = /(https:\/\/[a-z._-]*)/g;
 
-async function download(url, dest) {
+async function download(url, dest, hasFileNameOnPath = false) {
     return new Promise((resolve, reject) => {
-        const file = fs.createWriteStream(dest);
-
-        console.log(path.resolve(__dirname, dest));
+        //const file = fs.createWriteStream(dest);
 
         const request = https.get(url, async response => {
             
@@ -25,44 +24,17 @@ async function download(url, dest) {
             });
 
             if (response.statusCode === 200) {
-                response.pipe(file);
+                resolve(salvarArquivo(response, dest, hasFileNameOnPath));
             }
 
             else if (response.statusCode === 301) {
                 const dados_url = await REGEX_SERVER.exec(url);
                 const base_url = dados_url[1];
                 var novaUrl = base_url + response.headers.location;
-                resolve(download(novaUrl, dest));
+                resolve(download(novaUrl, dest, hasFileNameOnPath));
             }
             else if (response.statusCode === 302) {
-                resolve(download(response.headers.location, dest));
-            }
-            else {
-                console.log(response);
-                file.close();
-                fs.unlink(dest, () => {}); // Delete temp file
-                reject(`Server responded with ${response.statusCode}: ${response.statusMessage}`);
-            }
-        });
-
-        request.on("error", err => {
-            file.close();
-            fs.unlink(dest, () => {}); // Delete temp file
-            reject(err);
-        });
-
-        file.on("finish", () => {
-            resolve();
-        });
-
-        file.on("error", err => {
-            file.close();
-
-            if (err.code === "EXIST") {
-                reject("File already exists");
-            } else {
-                fs.unlink(dest, () => {}); // Delete temp file
-                reject(err.message);
+                resolve(download(response.headers.location, dest, hasFileNameOnPath));
             }
         });
     });
