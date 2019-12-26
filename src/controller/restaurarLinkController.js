@@ -8,6 +8,7 @@ const tough = require('tough-cookie');
 const Cookie = tough.Cookie;
 const fs = require('fs');
 const download = require('../utils/download');
+const restaurarService  = require("../service/restaurarBase").restaurar;
 
 const WETRANSFER_BASE = 'https://wetransfer.com';
 const WETRANSFER_URL_REGEX = "https://we.tl/.*";
@@ -15,6 +16,7 @@ const INIT_OF_WETRANSFER_URL = '/downloads/';
 const WETRANSFER_API_URL = WETRANSFER_BASE + '/api/v4/transfers';
 const WETRANSFER_DOWNLOAD_URL = WETRANSFER_API_URL + '/%s/download';
 const canal = 'db restore';
+const caminhoUpload = path.resolve(__dirname, "../../uploads");
 
 const TINYURL_URL_REGEX = "http://tinyurl.com/.*";
 
@@ -23,9 +25,11 @@ var securityHash;
 var csrfToken;
 var auxcookie;
 var urlDownload;
+var io;
 
 router.post('/', function(req, res) {
-    emitirMensagemSemFmt(req, "<br/>Requisição Recebida!\nAguarde....");    
+    io = req.app.io;
+    emitirMensagemSemFmt(req, "Requisição Recebida!\nAguarde....");    
     const nomeBanco = req.body['nome-banco'];
     if(isNomeBancoValido(nomeBanco) && req.body.link){
         restaurar(req);
@@ -43,10 +47,13 @@ async function restaurar(req) {
 };
 
 async function verificarTipoLink(link, req) {
+    const nomeBanco = req.body['nome-banco'];
     if (link.match(WETRANSFER_URL_REGEX)) {
         restaurarWetransfer(link, req);
     } else if (link.match(TINYURL_URL_REGEX)) {
-        await download(link);
+        emitirMensagemSemFmt(req, `Fazendo download do arquivo...`);
+        var arquivoZip = await download(link, caminhoUpload);
+        await restaurarService({filePath: arquivoZip.filePath, nomeBanco, msg: dispatchMsg});
     }
     else {
         emitirMensagemSemFmt(req, "Link não identificado");
@@ -78,7 +85,7 @@ async function restaurarWetransfer(link, req) {
 
     const direct_link = JSON.parse(url.body).direct_link;
     const nomeArquivo = getFileName(direct_link);
-    emitirMensagemSemFmt(req, `<br/>Fazendo download do arquivo do ${nomeArquivo} ...`);
+    emitirMensagemSemFmt(req, `Fazendo download do arquivo do ${nomeArquivo} ...`);
     const pathFile = path.join(__dirname, `../../uploads/${nomeArquivo}`);
     var fileInfo;
     try {
@@ -86,18 +93,9 @@ async function restaurarWetransfer(link, req) {
     } catch (error) {
         console.log(error);
     }
-    emitirMensagemSemFmt(req, "<br/>Download concluído...");
-    emitirMensagemSemFmt(req, "<br/>Tentando apagar o banco...");
-    console.log(pathFile);
-    exec(`psql -U postgres -c "DROP DATABASE ${nomeBanco}"`, {maxBuffer: 1024 * 50000} )
-    .then(dados => {
-        emitirMensagem(req, dados.stdout, "BANCO APAGADO!!!");
-        criarBanco(nomeBanco, fileInfo.filePath, req);
-    })
-    .catch(erro => {
-        emitirMensagem(req, erro.stderr, "NÃO FOI POSSÍVEL DROPAR A BASE");
-        criarBanco(nomeBanco, pathFile, req);
-    });
+
+    restaurarService({...fileInfo, ...{nomeBanco, msg: dispatchMsg}});
+    return;
 }
 
 function criarBanco(nomeBanco, caminhoArquivo, req) {
@@ -137,6 +135,10 @@ function emitirMensagem(req, saida, msg) {
 
 function emitirMensagemSemFmt(req, msg) {
     req.app.io.emit(canal, msg);
+}
+
+function dispatchMsg(msg) {
+    io.emit(canal, msg);
 }
 
 router.get('/', function(req, res) {

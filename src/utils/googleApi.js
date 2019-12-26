@@ -47,13 +47,6 @@ const getGoogleOAuth = async () => {
   return new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 };
 
-// Load client secrets from a local file.
-// fs.readFile('credentials.json', (err, content) => {
-//   if (err) return console.log('Error loading client secret file:', err);
-//   // Authorize a client with credentials, then call the Google Docs API.
-//   authorize(JSON.parse(content), printDocTitle);
-// });
-
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.

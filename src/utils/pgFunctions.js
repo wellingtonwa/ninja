@@ -27,7 +27,6 @@ const getIngoredDbs = async () => {
 
 const getConnection = async () => {
     var configs = await getConfigs();
-    console.log(configs);
     return new Pool(configs);
 };
 
@@ -75,4 +74,9 @@ const drop = async (db) => {
     
 };
 
-module.exports = { dropAll, drop,  getDbnames };
+const createdb = async (db) => {
+    const configs = await getConfigs();
+    return pgtools.createdb(configs, db);
+}
+
+module.exports = { dropAll, drop,  getDbnames, getConfigs, createdb };

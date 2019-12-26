@@ -85,6 +85,3 @@ function run(link) {
     });
 
 }
-
-
-run("https://we.tl/t-qELMzdxwg7");

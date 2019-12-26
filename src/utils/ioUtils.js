@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const REGEX_DOWNLOADED_FILENAME = /(?<=attachment; filename=").*(?=";)/ig;
+const REGEX_DOWNLOADED_FILENAME = /(?<=attachment; filename=").*(?=";)/g;
 
 const listFiles = dirPath => {
   return new Promise((resolve, reject) => {
@@ -26,15 +26,22 @@ const apagarArquivo = arquivo => {
   });
 };
 
+const getFileNameFromContentDisposition = (contentDisposition) => {
+  return new Promise((resolve, reject) => {
+    if (!contentDisposition) reject(Error("Erro, contentDisposition vazio"));
+  })
+}
+
 const saveDownloadedFile = (response, dest, hasFileNameOnPath = false) => {
   return new Promise((resolve, reject) => {
     var filePath;
     if (hasFileNameOnPath) {
         filePath = dest;
     } else {
-        const contentDisposition = response.headers["content-disposition"];
-        const fileName = REGEX_DOWNLOADED_FILENAME.exec(contentDisposition)[0];
-        filePath = path.resolve(__dirname, `${dest}/${fileName}`);
+      REGEX_DOWNLOADED_FILENAME.lastIndex = 0
+      const contentDispositionData = REGEX_DOWNLOADED_FILENAME.exec(response.headers["content-disposition"]);
+      fileName = contentDispositionData[0];
+      filePath = path.resolve(__dirname, `${dest}/${fileName}`);
     }
     const file = fs.createWriteStream(filePath);
     response.pipe(file);
@@ -56,4 +63,15 @@ const saveDownloadedFile = (response, dest, hasFileNameOnPath = false) => {
   });
 };
 
-module.exports = { listFiles, apagarArquivo, saveDownloadedFile };
+const getFileContent = (params) => {
+  var mergedParams = params;
+  if (!params.charset) mergedParams = {...params, ...{charset: 'utf-8'}}
+  return new Promise((resolve, reject) => {
+    fs.readFile(mergedParams.filePath, mergedParams.charset, (error, data) => {
+      if(error) reject(Error(error));
+      resolve(data);
+    });
+  })  
+}
+
+module.exports = { listFiles, apagarArquivo, saveDownloadedFile, getFileContent };

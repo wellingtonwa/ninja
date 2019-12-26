@@ -114,6 +114,3 @@ function getFileName(directLink) {
     var splitdl = directLink.split("/");
     return /(.*)(?=\?cf)/ig.exec(splitdl.slice(-1).pop())[1];
 }
-
-restaurar(process.argv[2], process.argv[3]);
-// console.log(process.argv)

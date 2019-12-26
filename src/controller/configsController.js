@@ -42,9 +42,8 @@ async function getDadosArquivoConfig() {
     var dadosArquivoConfig;
     try {
         dadosArquivoConfig = await readFile(CAMINHO_CONFIG, "utf-8");
-    } catch (error) {
-        res.send(error);
-        return;
+    } catch (error) {        
+        throw error;
     }
     dadosArquivoConfig =  dadosArquivoConfig.replace(REGEX_WITHESPACES, '').replace(REGEX_EMPTYLINES, '')
     .split(/(\r\n|\r)/g)

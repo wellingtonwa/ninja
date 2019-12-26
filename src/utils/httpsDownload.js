@@ -19,8 +19,7 @@ async function download(url, dest, hasFileNameOnPath = false) {
             response.on("data", function(chunk) {
                 body += chunk;
                 cur += chunk.length;
-                if (((100.0 * cur / len).toFixed(2) % 10) === 0)
-                    console.log("Downloading " + (100.0 * cur / len).toFixed(2) + " percent " + (cur / 1048576).toFixed(2) + " mb" + ". Total size: " + total.toFixed(2) + " mb");
+                console.log("Downloading " + (100.0 * cur / len).toFixed(2) + " percent " + (cur / 1048576).toFixed(2) + " mb" + ". Total size: " + total.toFixed(2) + " mb");
             });
 
             if (response.statusCode === 200) {
@@ -28,6 +27,7 @@ async function download(url, dest, hasFileNameOnPath = false) {
             }
 
             else if (response.statusCode === 301) {
+                REGEX_SERVER.lastIndex = 0;
                 const dados_url = await REGEX_SERVER.exec(url);
                 const base_url = dados_url[1];
                 var novaUrl = base_url + response.headers.location;

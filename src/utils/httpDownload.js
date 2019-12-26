@@ -12,6 +12,18 @@ httpDownload = async (link, caminhoArquivo) => {
     return new Promise((resolve, reject) => {
 
         const request = http.get(link, response => {
+            
+            var len = parseInt(response.headers['content-length'], 10);
+            var body = "";
+            var cur = 0;
+            var total = len / 1048576; //1048576 - bytes in  1Megabyte
+
+            response.on("data", function(chunk) {
+                body += chunk;
+                cur += chunk.length;
+                console.log("Downloading " + (100.0 * cur / len).toFixed(2) + " percent " + (cur / 1048576).toFixed(2) + " mb" + ". Total size: " + total.toFixed(2) + " mb");
+            });
+
             if (response.statusCode === 200) {
                 resolve(saveDownloadedFile(response, caminhoArquivo));
             }
