@@ -17,7 +17,3 @@ async function download (url, caminho, hasFileNameOnPath = false) {
 };
 
 module.exports = download;
-
-
-let url =  'http://tinyurl.com/yx3yxqnw';
-

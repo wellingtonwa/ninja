@@ -1,7 +1,5 @@
 var express = require('express');
 var router = express.Router();
-const path = require("path");
-const util = require("util");
 const { Pool } = require('pg');
 const { getDbnames } = require('../utils/pgFunctions');
 const getDadosArquivoConfig =  require("./configsController").getDadosArquivoConfig;
@@ -18,7 +16,6 @@ const getConfigs = async () => {
         database: dados.filter(dd => dd.property === 'DB_DATABASE')[0].value
     };
 };
-getConfigs();
 
 router.get('/', async function(req, res) {
     var dbNames = await getDbnames();
@@ -59,10 +56,7 @@ router.post('/', async function (req, res) {
             }
         })
     }
-
-    //res.render('rodarSql/index');
 });
-
 
 function emitirMensagemSemFmt(req, msg) {
     req.app.io.emit(canal, msg);

@@ -1,7 +1,5 @@
 var express = require('express');
 var router = express.Router();
-const path = require("path");
-const util = require("util");
 const { Pool } = require('pg');
 const { getDbnames } = require('../utils/pgFunctions');
 const getDadosArquivoConfig =  require("./configsController").getDadosArquivoConfig;
