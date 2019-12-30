@@ -1,15 +1,18 @@
 const util = require('util');
 const got = require('got');
-var tough = require('tough-cookie');
-var Cookie = tough.Cookie;
-var fs = require('fs');
-var https = require('https');
+const tough = require('tough-cookie');
+const Cookie = tough.Cookie;
+const fs = require('fs');
+const https = require('https');
 const path = require("path");
 
-var INIT_OF_WETRANSFER_URL = '/downloads/';
+const INIT_OF_WETRANSFER_URL = '/downloads/';
 
-var WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers';
-var WETRANSFER_DOWNLOAD_URL = WETRANSFER_API_URL + '/%s/download';
+const WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers';
+const WETRANSFER_DOWNLOAD_URL = WETRANSFER_API_URL + '/%s/download';
+const WETRANSFER_UPLOAD_URL = WETRANSFER_API_URL + '/link';
+const WETRANSFER_FINALIZE_URL = WETRANSFER_API_URL + '/%s/finalize';
+const WETRANSFER_DEFAULT_CHUNK_SIZE = 5242880;
 
 var transferId;
 var securityHash;
@@ -22,7 +25,6 @@ function startDownload(directLink){
     const file = fs.createWriteStream(path.join(__dirname, `../uploads/${file_name}`));
     const request = https.get(directLink, (response) => response.pipe(file));
 }
-
 
 async function getDownloadUrl(link) {
     await got.get(link, {withCredentials: true}).then(data => {
@@ -39,11 +41,17 @@ async function getDownloadUrl(link) {
     }).catch(e => {console.log(e)});
 }
 
-async function getRequestParam() {
-    return got.get('https://wetransfer.com/').then(data => {
-        var regexCSRF = /name="csrf-token" content="([^"]+)/g;
-        csrfToken = regexCSRF.exec(data.body)[1];
-        auxcookie = data.headers['set-cookie'];
+function getRequestParam() {
+    return new Promise((resolve, reject) => {
+        got.get('https://wetransfer.com/').then(async data => {
+            var regexCSRF = /name="csrf-token" content="([^"]+)/g;
+            csrfToken = regexCSRF.exec(data.body)[1];
+            auxcookie = data.headers['set-cookie'];
+            const cookieJar = new tough.CookieJar();
+            await setCookie(cookieJar, auxcookie[0]);
+            await setCookie(cookieJar, auxcookie[1]);
+            resolve({csrfToken, cookie: auxcookie, cookieJar});
+        }).catch(e => reject(e));
     });
 }
 
@@ -85,4 +93,71 @@ function run(link) {
     });
 }
 
-module.exports = { run, getFileName };
+
+
+/***
+ * Testando o upload de arquivos
+ */
+const files = [
+    path.resolve(__dirname, "../../uploads/scripts.sql")
+];
+
+const message = "Testando o upload";
+
+const setCookie = (cookieJar, value) => {
+    return new Promise((resolve, reject) => {
+        cookieJar.setCookie(Cookie.parse(value), 'https://wetransfer.com', (e, c) => {
+            if (e) reject(e);
+            resolve(c);
+        });
+    });
+}
+
+const upload_files = async () => {
+    const rd = await getRequestParam();
+       
+    const dados_arquivo = {
+        files: [{'name': "scripts.sql", 'size': fs.statSync(files[0]).size}],
+        message,
+        ui_language: "en"
+    };
+
+    const response = await got(
+        WETRANSFER_UPLOAD_URL,
+        {
+            method: 'post',
+            body:  JSON.stringify(dados_arquivo),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': rd.csrfToken
+            },
+            cookieJar
+        });
+    const response_body = JSON.parse(response.body);
+    const transfer_id = response_body.id;
+
+    // Agora eu tenho que enviar os arquivos
+    const file_to_send = {
+        name: path.basename(files[0]),
+        size: fs.statSync(files[0]).size,
+        stream: fs.createReadStream(files[0]),
+        chunk_size: response_body.chunk_size
+    }
+
+
+    // Criando a url encurtada
+    const shortner_response = await got(
+        util.format(WETRANSFER_FINALIZE_URL, transfer_id),
+        {
+            method: 'put',
+            headers: {
+                'X-CSRF-Token': rd.csrfToken
+            },
+            cookieJar
+        });
+
+    console.log(shortner_response);
+}
+
+
+module.exports = { run, getFileName, getRequestParam, setCookie };

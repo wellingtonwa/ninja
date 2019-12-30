@@ -23,8 +23,12 @@
     "pg": "^7.12.1",
     "pgtools": "^0.3.0",
     "pug": "^2.0.4",
+    "request": "^2.88.0",
+    "request-progress": "^3.0.0",
+    "request-promise": "^4.2.5",
     "socket.io": "^2.3.0",
-    "tough-cookie": "^3.0.1"
+    "tough-cookie": "^3.0.1",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "nodemon": "^1.19.4"
