@@ -72,7 +72,7 @@ async function rodarScript(nomeBanco, req) {
     var configs = await getConfigs();
     
     emitirMensagemSemFmt(req, "<br/>Iniciando o download do script obrigatório...");
-    download("https://www.dropbox.com/s/4ub6n18no37o356/scripts.sql?dl=1", caminhoScript)
+    download("https://www.dropbox.com/s/4ub6n18no37o356/scripts.sql?dl=1", caminhoScript, true)
     .then(async dados => {
         emitirMensagemSemFmt(req, "<br/>DOWNLOAD DO SCRIPT OBRIGATÓRIO CONCLUÍDO!");
         emitirMensagemSemFmt(req, "<br/>Iniciando a execução do script");

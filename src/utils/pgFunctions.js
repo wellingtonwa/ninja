@@ -1,5 +1,6 @@
 const pgtools = require('pgtools');
 const { Pool } = require('pg');
+const exec = require('child_process').exec;
 const prefix = process.env.DB_PREFIX;
 const ignoreDbs = process.env.IGNORE_DBS
 const getDadosArquivoConfig =  require("../controller/configsController").getDadosArquivoConfig;
@@ -79,4 +80,15 @@ const createdb = async (db) => {
     return pgtools.createdb(configs, db);
 }
 
-module.exports = { dropAll, drop,  getDbnames, getConfigs, createdb };
+const dumpDataBase = (params) => {
+    return new Promise((resolve, reject) => {
+        exec(`pg_dump -h localhost -p 5432 -U postgres -F c -b -v -f "${params.filePath}" ${params.nomeBanco}`, (error, stdout, stderr) => {
+            if (error) {
+              reject(error);
+            }
+            resolve({stdout, stderr});
+          });
+    })
+}
+
+module.exports = { dropAll, drop,  getDbnames, getConfigs, createdb, dumpDataBase };

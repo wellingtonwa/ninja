@@ -1,18 +1,14 @@
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
-const exec = require('child_process').exec;
 const Payload = require('../utils/Payload');
 const { upload } = require('../utils/wetransfer_upload');
+const dumpDataBase = require('../utils/pgFunctions').dumpDataBase;
 
-const uploadFile = async (params) => {
-    console.log(params);
+const uploadFile = async (params) => {    
     sendMsg(params, `Preparando o upload do arquivo`);
     const files = [
         new Payload({ filePath: params.filePath })
     ];
     const newUpload = upload('', '', files, `Backup do banco ${params.nomeBanco}. By Ninja!`, 'en')
-        .on('progress', progress => sendMsg(params, progress)) 
+        .on('progress', progress => sendMsg(params, `${progress.percent*100}% - ${progress.size && progress.size.transferred} de ${progress.size && progress.size.total}`)) 
         .on('end', (end) => sendMsg(params, `Processo Finalizado: ${end.shortened_url}`))
         .on('error', (error) => sendMsg(params, error));
     ;
@@ -47,8 +43,8 @@ const backupDataBase = async (params) => {
     
         try {
             const result_backup = await dumpDataBase(params);
-            sendMsg(params, result_backup);
-            sendMsg("BACKUP CONCLUÍDO!!!")
+            sendMsg(params, "BACKUP EM EXECUÇÃO!");
+            sendMsg(params, "BACKUP CONCLUÍDO!!!")
             resolve(result_backup);
         } catch (error) {
             reject(error);
@@ -56,17 +52,8 @@ const backupDataBase = async (params) => {
     });
 }
 
-const dumpDataBase = (params) => {
-    return new Promise((resolve, reject) => {
-        exec(`pg_dump -h localhost -p 5432 -U postgres -F c -b -v -f "${params.filePath}" ${params.nomeBanco}`, (error, stdout, stderr) => {
-            if (error) {
-              reject(error);
-            }
-            resolve({stdout, stderr});
-          });
-    })
-}
-
 const sendMsg = (params, msg) => {
     params.msg && params.msg(msg);
 }
+
+module.exports = { uploadFile, backupDataBase };
