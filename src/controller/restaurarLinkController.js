@@ -11,6 +11,7 @@ const canal = 'db restore';
 const caminhoUpload = path.resolve(__dirname, "../../uploads");
 
 const TINYURL_URL_REGEX = "http://tinyurl.com/.*";
+const DROPBOX_URL_REGEX = "https://www.dropbox.com/.*";
 
 var io;
 
@@ -38,6 +39,11 @@ async function verificarTipoLink(link, req) {
     if (link.match(WETRANSFER_URL_REGEX)) {
         restaurarWetransfer(link, req);
     } else if (link.match(TINYURL_URL_REGEX)) {
+        emitirMensagemSemFmt(req, `Fazendo download do arquivo...`);
+        var arquivoZip = await download(link, caminhoUpload);
+        await restaurarService({filePath: arquivoZip.filePath, nomeBanco, msg: dispatchMsg});
+    } else if (link.match(DROPBOX_URL_REGEX)) {
+        emitirMensagemSemFmt(req, `Link do DROPBOX identificado...`);
         emitirMensagemSemFmt(req, `Fazendo download do arquivo...`);
         var arquivoZip = await download(link, caminhoUpload);
         await restaurarService({filePath: arquivoZip.filePath, nomeBanco, msg: dispatchMsg});
