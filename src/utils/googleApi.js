@@ -5,6 +5,7 @@ const fs = require("fs");
 const readline = require("readline");
 const { google } = require("googleapis");
 const { getDadosArquivoConfig } = require("./configs");
+const { createFolderIfNotExists } = require("./ioUtils");
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/documents.readonly"];
@@ -60,6 +61,7 @@ async function authorize2(credentials, callback, documentId, out) {
 
   // Check if we have previously stored a token.
   let resultado;
+  createFolderIfNotExists({ dirPath: path.dirname(TOKEN_PATH), recursive:true});
   resultado = await readFile(TOKEN_PATH)
     .then(async token => {
       oAuth2Client.setCredentials(JSON.parse(token));
