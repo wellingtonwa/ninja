@@ -2,7 +2,8 @@ const path = require("path");
 const fs = require("fs");
 const REGEX_DOWNLOADED_FILENAME = /(?<=attachment; filename=").*(?=";)/g;
 
-const listFiles = dirPath => {
+const listFiles = async dirPath => {
+  await createFolderIfNotExists({ dirPath });
   return new Promise((resolve, reject) => {
     fs.readdir(dirPath, function(err, files) {
       //handling error
@@ -26,12 +27,6 @@ const apagarArquivo = arquivo => {
   });
 };
 
-const getFileNameFromContentDisposition = (contentDisposition) => {
-  return new Promise((resolve, reject) => {
-    if (!contentDisposition) reject(Error("Erro, contentDisposition vazio"));
-  })
-}
-
 const saveDownloadedFile = (response, dest, hasFileNameOnPath = false) => {
   return new Promise((resolve, reject) => {
     var filePath;
@@ -43,6 +38,7 @@ const saveDownloadedFile = (response, dest, hasFileNameOnPath = false) => {
       fileName = contentDispositionData[0];
       filePath = path.resolve(__dirname, `${dest}/${fileName}`);
     }
+    createFolderIfNotExists({ dirPath: path.dirname(filePath)});
     const file = fs.createWriteStream(filePath);
     response.pipe(file);
 
@@ -74,4 +70,16 @@ const getFileContent = (params) => {
   })  
 }
 
-module.exports = { listFiles, apagarArquivo, saveDownloadedFile, getFileContent };
+const createFolderIfNotExists = params => {
+  return new Promise( (resolve, reject) => {
+    const fe = fs.existsSync(params.dirPath);
+    const options = params.recursive ? { recursive: true } :  { recursive: false };
+    if (!fe){  
+      resolve(fs.mkdirSync(params.dirPath, options));
+    } else {
+      reject(false);
+    }
+  });
+}
+
+module.exports = { listFiles, apagarArquivo, saveDownloadedFile, getFileContent, createFolderIfNotExists };
