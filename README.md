@@ -23,6 +23,15 @@ mkdir uploads;
 mkdir configs && cd configs && mkdir files
 ```
 
+### Configurando variável de ambiente
+
+Adicione uma variável de ambiente chamada `PGPASSWORD` e no valor informe a senha do usuário `postgres`. Este passo é para evitar que o node fique solicitando a senha do postgres quando for restaurar um backup.
+
+Para adicionar a variável de ambiente você deve abrir um terminal (cmd ou bash) como administrador e executar o seguinte comando:
+```
+setx PGPASSWORD "MinhaSenhaDoPostgres"  
+```
+
 ### Configurações do projeto
 
 Na raiz do projeto há um arquivo `.env.example`. Pegue este arquivo remoneie removendo o trecho `.example` dele, o arquivo deve ter o nome `.env`somente.
@@ -40,6 +49,10 @@ PATH_CLEAN=C:/Users/well/Downloads/ -> endereço da pasta que o ninja deve usar 
 GOOGLEDOCS_CLIENTID=loremipsum -> ID do cliente da API do Google Docs
 GOOGLEDOCS_CLIENTSECRET=loremipsum -> Senha do cliente da API do Google Docs
 GOOGLEDOCS_DOCUMENTID=loremipsum -> Identificador do Documento do Google docs
+MANTIS_USER=loremipsum -> Seu usuário do Mantis
+MANTIS_PASSWORD=loremipsum -> Sua senha do Mantis
+MANTIS_BASE_URL=https://loremipsum.com.br -> O endereço base para o sistema do Mantis
+
 ```
 ## Executando o Ninja
 
