@@ -21,10 +21,9 @@ async function getDadosArquivoConfig() {
     .filter(dado => dado !== '\r\n')
     .filter(dado => dado!== '')
     .map(dado => {
-        configs = dado.split("=");
-        return {property:configs[0], value:configs[1]};
+        configs = dado.split(/=(.+)/);
+        return {property:configs[0], value: configs[1]};
     });
-
     return dadosArquivoConfig;
 }
 

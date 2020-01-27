@@ -23,6 +23,7 @@
     "pg": "^7.12.1",
     "pgtools": "^0.3.0",
     "pug": "^2.0.4",
+    "puppeteer": "^2.0.0",
     "request": "^2.88.0",
     "request-progress": "^3.0.0",
     "request-promise": "^4.2.5",

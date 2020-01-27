@@ -13,6 +13,7 @@ var sqlDaVersaoController = require('./controller/sqlDaVersaoController');
 var limparPastaUploadController = require('./controller/limparPastaUploadController');
 var dropDatabaseController = require('./controller/dropDatabaseController');
 var uploadDatabaseController = require('./controller/uploadDatabaseController');
+var casoMantisController = require('./controller/casoMantisController');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -34,6 +35,7 @@ app.use('/sql-versao', sqlDaVersaoController);
 app.use('/limpar-pasta', limparPastaUploadController);
 app.use('/apagar-db', dropDatabaseController);
 app.use('/upload', uploadDatabaseController);
+app.use('/mantis', casoMantisController);
 
 var server = app.listen(5000);
 
