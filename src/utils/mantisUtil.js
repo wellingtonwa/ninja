@@ -3,6 +3,7 @@ const { getDadosArquivoConfig }  = require('./configs');
 const LOGIN_PAGE = "/login.php";
 const ISSUE_PAGE = "/view.php?id=%%";
 const MANTIS_BASEURL_ATTR = 'MANTIS_BASE_URL';
+const REGEX_ISSUENUMBER = /(?<=.*)[0-9]{5}$/;
 
 // Para obter a contagem de tempo
 // document.querySelectorAll('li[class="flip-clock-active"]')[4].innerText
@@ -37,8 +38,13 @@ const getDadosCasos = async (params) => {
     if (typeof params.issue_number === "string") {
         celulas = await obterDadosCaso(page, params.issue_number);
     } else if (Array.isArray(params.issue_number)) {
-        for (const [idx, item] of params.issue_number.entries()) {
-            celulas[item] = await obterDadosCaso(page, item);
+        let issues_promises = params.issue_number.map(item => {
+            return obterDadosCaso(browser, item);
+        });
+
+        const dados = await Promise.all(issues_promises);
+        for (const [idx, item] of dados.entries()) {
+            celulas[item.numeroCaso.match(REGEX_ISSUENUMBER)] = item;
         }
     } else {
         throw new Error("O parâmetro issue_number deve ser String ou Array");
@@ -48,10 +54,10 @@ const getDadosCasos = async (params) => {
     return celulas;
 };
 
-const obterDadosCaso = async (page, issue_number) => {
+const obterDadosCaso = async (browser, issue_number) => {
     const dadosArquivoConfig = await getDadosArquivoConfig();
     const baseURL = dadosArquivoConfig.find(it => it.property == MANTIS_BASEURL_ATTR).value;
-
+    const page = await browser.newPage();
     try {
         await page.goto(`${baseURL}${ISSUE_PAGE.replace('%%', issue_number)}`, {awaitUntil: 'networkidle2'});
     } catch (error) {
@@ -69,6 +75,7 @@ const obterDadosCaso = async (page, issue_number) => {
             {"field": "versao", "label": "Previsto para a Versão"},
             {"field": "prioridade", "label": "Prioridade"},
             {"field": "complexidade", "label": "Complexidade"},
+            {"field": "informacaoAdicional", "label": "Informações Adicionais"},
         ];
 
         const fixFields = [
