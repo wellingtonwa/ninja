@@ -44,8 +44,11 @@ const getDadosCasos = async (params) => {
 
         const dados = await Promise.all(issues_promises);
         for (const [idx, item] of dados.entries()) {
-            celulas[item.numeroCaso.match(REGEX_ISSUENUMBER)] = item;
+            if (item) {
+                celulas[item.numeroCaso.match(REGEX_ISSUENUMBER)] = item;
+            } 
         }
+        
     } else {
         throw new Error("O parâmetro issue_number deve ser String ou Array");
     }
@@ -99,7 +102,7 @@ const obterDadosCaso = async (browser, issue_number) => {
             }
         })
         return resultado;
-    });
+    }).catch(error => {return null;});
 }
 
 module.exports = {getDadosCasos}
