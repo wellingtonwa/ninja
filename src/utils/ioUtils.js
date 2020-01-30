@@ -71,15 +71,19 @@ const getFileContent = (params) => {
 }
 
 const createFolderIfNotExists = params => {
-  return new Promise( (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const fe = fs.existsSync(params.dirPath);
     const options = params.recursive ? { recursive: true } :  { recursive: false };
-    if (!fe){  
-      resolve(fs.mkdirSync(params.dirPath, options));
+    if (!fe){
+      try {
+        fs.mkdirSync(params.dirPath, options);
+      } catch(error) {
+        reject(error);
+      }
     } else {
-      reject(false);
+      resolve(false);
     }
   });
-}
+};
 
 module.exports = { listFiles, apagarArquivo, saveDownloadedFile, getFileContent, createFolderIfNotExists };
