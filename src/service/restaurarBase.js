@@ -12,7 +12,6 @@ const { Pool } = require('pg');
 
 const REGEX_ZIP_FILE = ".*\.zip$";
 const REGEX_ARQUIVOBACK = /.*\.backup$/g;
-const REGEX_BACKUP_FILENAME = /(?<=backup\/)([[:alnum:]_-]+\.backup$)/g;
 
 const caminhoUpload = path.resolve(__dirname, '../../uploads');
 
@@ -79,8 +78,7 @@ const restaurar = async (params) => {
     }
     
     sendMsg(params, `Processo de restauração concluído!`);
-
-    
+ 
 };
 
 const sendMsg = (params, msg) => {
