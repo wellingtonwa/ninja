@@ -20,20 +20,19 @@ const storage = multer.diskStorage({
     }
 });
 
+// utiliza a storage para configurar a instância do multer
+const upload = multer({ storage });
+
 function dispatchMsg(msg) {
     console.log(msg);
     io.emit(canal, msg);
 }
-
-// utiliza a storage para configurar a instância do multer
-const upload = multer({ storage });
 
 router.post('/', upload.single('arquivo'),  async function(req, res) {
     io = req.app.io;
     dispatchMsg("Requisição Recebida! Aguarde....");
     if (req.file) {
         var nomeBanco = req.file.originalname.replace(/\.(backup|zip)/, "");
-        console.log(req.file.path, nomeBanco);
         await restaurar({ filePath: req.file.path, nomeBanco, msg: dispatchMsg});
     } else {
         dispatchMsg("Informe o arquivo ¬¬");

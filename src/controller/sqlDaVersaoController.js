@@ -28,7 +28,7 @@ router.get('/', async function(req, res) {
 router.get('/obter-sql-versao', async function(req, res) {
     requisicao = req;
     dados = await getDadosArquivoConfig();
-    let documentId = dados.filter(dd => dd.property === 'GOOGLEDOCS_DOCUMENTID')[0].value;    
+    let documentId = dados.filter(dd => dd.property === 'GOOGLEDOCS_DOCUMENTID')[0].value;
     res.send(JSON.stringify(await authorize(documentId, emitirMensagemSemFmt)));
 });
 
@@ -75,15 +75,24 @@ router.post('/rodar-sql-da-versao', async function(req, res) {
     let sqlDaVersao = await authorize(documentId, emitirMensagemSemFmt);
     let nomeBanco = req.body.nome_banco;
     const configs = await getConfigs();
-    sqlDaVersao = sqlDaVersao.sql;
-    const pool = new Pool({...configs, database:nomeBanco});        
-    pool.query(sqlDaVersao, (err, res) => {
-        if (res) {
-            emitirMensagemSemFmt("SCRIPT EXECUTADO COM SUCESSO! ;)");
-        } else {
-            emitirMensagemSemFmt("Deu merda! Veja isso: " + err);
-        }
-    });
+    sqlDaVersao = sqlDaVersao.sql.replace(/^(--).*\n/gm, "").replace(/^\n/gm, "").replace(/\n/gm, "##");
+    sqlDaVersao = sqlDaVersao.split("##").filter(it => it.length > 0);
+    
+    const pool = new Pool({...configs, database:nomeBanco});
+    for(statement of sqlDaVersao) {
+        var resultado = await new Promise((resolve, reject) => {
+            pool.query(statement, (err, res) => {
+                if (res) {
+                    resolve("OK -> " + statement);
+                } else {
+                    reject("Deu merda no sql '"+statement+"' Veja isso: " + err);
+                }
+            });
+        }).catch(error => {
+            resultado = error
+        });
+        emitirMensagemSemFmt(resultado);
+    }
 });
 
 function emitirMensagemSemFmt(msg) {
