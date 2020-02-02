@@ -24,19 +24,38 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 function dispatchMsg(msg) {
-    console.log(msg);
     io.emit(canal, msg);
+}
+
+const validarDados = (req) => {
+    var erros = [];
+    if (req.body.informar_nome && req.body['nome-banco'] === "undefined") {
+        erros.push("Informe o nome do banco ¬¬");
+    }
+    if (!req.file) {
+        erros.push("Informe o arquivo ¬¬");
+    }
+    
+    return erros;
 }
 
 router.post('/', upload.single('arquivo'),  async function(req, res) {
     io = req.app.io;
     dispatchMsg("Requisição Recebida! Aguarde....");
-    if (req.file) {
-        var nomeBanco = req.file.originalname.replace(/\.(backup|zip)/, "");
-        await restaurar({ filePath: req.file.path, nomeBanco, msg: dispatchMsg});
-    } else {
-        dispatchMsg("Informe o arquivo ¬¬");
+    // validando os dados recebidos
+    var erros = validarDados(req);
+    if (erros.length > 0) {
+        for(erro of erros){
+            dispatchMsg(erro);
+        }
+        return;
     }
+
+    var nomeBanco = req.file.originalname.replace(/\.(backup|zip)/, "");
+    if (req.body.informar_nome) {
+        nomeBanco = req.body['nome-banco'];
+    }
+    await restaurar({ filePath: req.file.path, nomeBanco, msg: dispatchMsg});
     res.send('finalizado');
 });
 
