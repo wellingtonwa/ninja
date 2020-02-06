@@ -14,9 +14,6 @@ router.post('/apagar', async function(req, res) {
                 await drop(dbname)
                 .then(dados => emitirMensagemSemFmt(req, `Sucesso: ${dados}`))
                 .catch(err => emitirMensagemSemFmt(req, `Erro: ${err}`));
-                // await exec(`psql -U postgres -c "DROP DATABASE ${dbname}"`)
-                // .then(dados => emitirMensagemSemFmt(req, `Sucesso: ${dados.stdout} - ${dbname}`))
-                // .catch(err => emitirMensagemSemFmt(req, `Erro: ${dados.stdout}`));
             }
         }
     }

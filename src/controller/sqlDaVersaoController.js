@@ -75,9 +75,8 @@ router.post('/rodar-sql-da-versao', async function(req, res) {
     let sqlDaVersao = await authorize(documentId, emitirMensagemSemFmt);
     let nomeBanco = req.body.nome_banco;
     const configs = await getConfigs();
-    sqlDaVersao = sqlDaVersao.sql.replace(/^(--).*\n/gm, "").replace(/^\n/gm, "").replace(/\n/gm, "##");
+    sqlDaVersao = sqlDaVersao.sql.replace(/^(--).*\n/gm, "").replace(/^\n/gm, "").replace(/\n/gm, " ").replace(/(?<!\\);/gm, "##");
     sqlDaVersao = sqlDaVersao.split("##").filter(it => it.length > 0);
-    
     const pool = new Pool({...configs, database:nomeBanco});
     for(statement of sqlDaVersao) {
         var resultado = await new Promise((resolve, reject) => {
