@@ -1,5 +1,17 @@
 # ninja
-Projeto para auxiliar as tarefas diárias da equipe de Dev
+Projeto para auxiliar as tarefas diárias da equipe de Dev.
+## Funcionalidades
+
+* Restaurar base de dados
+  * Via Arquivo
+  * Via Link (WeTransfer | DropBox | TinyURL)
+* Rodar SQL em uma base de dados
+* Obter o SQL da versão do Google Docs e roda-lo em uma base de dados.
+* Upload backup e upload de base de dados para o WeTransfer
+* Apagar bases de dados.
+  * Quando o número do caso do mantis é informado no final do nome da base de dados o ninja vai até o mantis para buscar as informações do caso.
+
+  ![Imagem de exemplo de informações de caso](https://i.imgur.com/gFztzUQ.png)
 
 ## Instalando
 
@@ -59,5 +71,6 @@ MANTIS_BASE_URL=https://loremipsum.com.br -> O endereço base para o sistema do 
 Abra um terminal `cmd`, `bash`ou similar e execute o seguinte comando.
 
 ```
+npm install
 node ./src/index.js
 ```
