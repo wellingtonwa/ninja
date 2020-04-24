@@ -117,7 +117,7 @@ const descompactar = (params) => {
  */
 const restoreFile = async (params) => {
     const configs = await getConfigs();
-    return exec(`pg_restore -h ${configs.host} -p ${configs.port} -U ${configs.user} -d ${params.nomeBanco} ${params.filePath}`, {maxBuffer: 1024 * 50000});
+    return exec(`pg_restore -h ${configs.host} -p ${configs.port} -U ${configs.user} -d ${params.nomeBanco} "${params.filePath}"`, {maxBuffer: 1024 * 50000});
 }
 
 /**
