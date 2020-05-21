@@ -18,7 +18,13 @@ const getDadosCasos = async (params) => {
     const mantisPwd = dadosArquivoConfig.find(it => it.property == MTPWD_ATTR).value;
     const baseURL = dadosArquivoConfig.find(it => it.property == MANTIS_BASEURL_ATTR).value;
     
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-translate',
+            '--disable-extensions',
+            '--disable-sync'
+        ],});
     const page = await browser.newPage();
     await page.goto(`${baseURL}${LOGIN_PAGE}`,  {awaitUntil: 'networkidle2'});
     
