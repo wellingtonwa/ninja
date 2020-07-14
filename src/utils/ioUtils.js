@@ -1,6 +1,11 @@
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
+const { spawn } = require('child_process');
 const REGEX_DOWNLOADED_FILENAME = /(?<=attachment; filename=").*(?=";)/g;
+
+const WIN32 = 'win32';
+const LINUX = 'linux';
 
 const listFiles = async dirPath => {
   await createFolderIfNotExists({ dirPath });
@@ -70,6 +75,18 @@ const getFileContent = (params) => {
   })  
 }
 
+const copyFile = (params) => {
+  return new Promise((resolve, reject) => {
+    fs.copyFile(params.sourceFile, params.destinationFile, (err) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(true);
+      }
+    });
+  });
+}
+
 const createFolderIfNotExists = params => {
   return new Promise((resolve, reject) => {
     const fe = fs.existsSync(params.dirPath);
@@ -86,4 +103,10 @@ const createFolderIfNotExists = params => {
   });
 };
 
-module.exports = { listFiles, apagarArquivo, saveDownloadedFile, getFileContent, createFolderIfNotExists };
+const openFolder = params => {
+  const fileExplorer = os.platform === WIN32 ? 'explorer' : 'xdg-open';
+  const process = spawn(fileExplorer, [`${params.path}`], { detached: true, stdio: 'ignore' });
+  process.unref();
+};
+
+module.exports = { listFiles, apagarArquivo, saveDownloadedFile, getFileContent, createFolderIfNotExists, copyFile, openFolder };

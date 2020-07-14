@@ -28,6 +28,7 @@ const getIngoredDbs = async () => {
 
 const getConnection = async () => {
     var configs = await getConfigs();
+    console.log(configs);
     return new Pool(configs);
 };
 
@@ -50,10 +51,13 @@ const getDbnames = async () => {
                             AND datname like '${prefix}'
                             AND datname NOT IN (${ignoreDbs})
                         ORDER BY datname`;
+                        console.log(query);
         pool.query(query, (err, resp) => {
             if (err) {
+                console.log(`Erro ${err}`);
                 reject(Error(err));
             } else {
+                console.log(`Funcionou : ${JSON.stringify(resp, null, 2)}`)
                 resolve(resp.rows);
             }
         });
