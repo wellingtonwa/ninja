@@ -28,7 +28,6 @@ const getIngoredDbs = async () => {
 
 const getConnection = async () => {
     var configs = await getConfigs();
-    console.log(configs);
     return new Pool(configs);
 };
 
@@ -51,7 +50,6 @@ const getDbnames = async () => {
                             AND datname like '${prefix}'
                             AND datname NOT IN (${ignoreDbs})
                         ORDER BY datname`;
-                        console.log(query);
         pool.query(query, (err, resp) => {
             if (err) {
                 console.log(`Erro ${err}`);
@@ -67,7 +65,7 @@ const getDbnames = async () => {
 const drop = async (db) => {
     const config = await getConfigs();
     return new Promise((resolve, reject) => {
-        pgtools.dropdb(config, db, function (err) {
+        pgtools.dropdb(config, db, function (err, res) {
             if (err) {
                 reject(Error(err));
             }
@@ -84,6 +82,18 @@ const createdb = async (db) => {
     return pgtools.createdb(configs, db);
 }
 
+const createDBDocker = async (params) => {
+    return new Promise((resolve, reject) => {
+        console.log(`docker exec -t postgres psql -U postgres -c "CREATE DATABASE ${params.nomeBanco}"`)
+        exec(`docker exec -t postgres psql -U postgres -c "CREATE DATABASE ${params.nomeBanco}"`, (error, stdout, stderr) => {
+            if (error) {
+                reject(error);
+            }
+            resolve({stdout, stderr});
+        });
+    })
+}
+
 const dumpDataBase = (params) => {
     return new Promise((resolve, reject) => {
         exec(`pg_dump -h localhost -p 5432 -U postgres -F c -b -v -f "${params.filePath}" ${params.nomeBanco}`, (error, stdout, stderr) => {
@@ -95,4 +105,15 @@ const dumpDataBase = (params) => {
     })
 }
 
-module.exports = { dropAll, drop,  getDbnames, getConfigs, createdb, dumpDataBase };
+const dumpDataBaseDocker = (params) => {
+    return new Promise((resolve, reject) => {
+        exec(`docker exec -t postgres sh -c "pg_dump -h localhost -p 5432 -U postgres -F c -b -v -f "/opt/bkp/${params.nomeBanco}.backup" ${params.nomeBanco}"`, (error, stdout, stderr) => {
+            if (error) {
+              reject(error);
+            }
+            resolve({stdout, stderr});
+          });
+    })
+}
+
+module.exports = { dropAll, drop,  getDbnames, getConfigs, createdb, dumpDataBase, createDBDocker, dumpDataBaseDocker };

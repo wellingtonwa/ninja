@@ -1,0 +1,18 @@
+{
+  "DB_USER":"postgres",
+  "DB_PASSWORD":"loremipsum",
+  "DB_HOST":"localhost",
+  "DB_PORT":"5432",
+  "DB_DATABASE":"postgres",
+  "DB_PREFIX":"%",
+  "IGNORE_DBS":"'postgres'",
+  "DB_BKP_FOLDER":"D:/docker/postgres/bkp/",
+  "PATH_CLEAN":"C:/Users/well/Downloads/",
+  "ISSUE_FOLDER_PATH":"D:/downloads/lixo/",
+  "GOOGLEDOCS_CLIENTID":"loremipsum",
+  "GOOGLEDOCS_CLIENTSECRET":"loremipsum",
+  "GOOGLEDOCS_DOCUMENTID":"loremipsum",
+  "MANTIS_USER":"loremipsum",
+  "MANTIS_PASSWORD":"loremipsum",
+  "MANTIS_BASE_URL":"https://mantis.loremipsum.com.br"
+}

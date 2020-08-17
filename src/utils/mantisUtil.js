@@ -25,7 +25,7 @@ const getDadosCasos = async (params) => {
             '--disable-extensions',
             '--disable-sync'
         ],});
-    const page = await browser.newPage();
+    const page = (await browser.pages())[0];
     await page.goto(`${baseURL}${LOGIN_PAGE}`,  {awaitUntil: 'networkidle2'});
     
     await page.evaluate((mantisUser, mantisPwd) => {

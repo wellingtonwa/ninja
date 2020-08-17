@@ -6,12 +6,13 @@ const readFile = util.promisify(fs.readFile);
 const REGEX_WITHESPACES = /( |\t)/g;
 const REGEX_EMPTYLINES = /^(\r\n|\n)/g;
 const CAMINHO_CONFIG = path.resolve(__dirname, "../../.env");
+const CAMINHO_CONFIG_JSON = path.resolve(__dirname, "../../config.json");
 
 async function getDadosArquivoConfig() {
     
     var dadosArquivoConfig;
     try {
-        dadosArquivoConfig = await readFile(CAMINHO_CONFIG, "utf-8");
+        dadosArquivoConfig = fs.readFileSync(CAMINHO_CONFIG, "utf-8");
     } catch (error) {
         res.send(error);
         return;
@@ -27,4 +28,15 @@ async function getDadosArquivoConfig() {
     return dadosArquivoConfig;
 }
 
-module.exports = {getDadosArquivoConfig}
+async function getConfigs() {
+    let dadosArquivoConfig = String(fs.readFileSync(CAMINHO_CONFIG_JSON));
+    let result = null;
+    try {
+        result = await JSON.parse(dadosArquivoConfig)
+    } catch (error) {
+        console.log(error);
+    }
+    return result;
+}
+
+module.exports = {getDadosArquivoConfig, getConfigs};

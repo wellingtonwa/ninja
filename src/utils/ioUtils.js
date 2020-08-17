@@ -92,19 +92,22 @@ const createFolderIfNotExists = params => {
     const fe = fs.existsSync(params.dirPath);
     const options = params.recursive ? { recursive: true } :  { recursive: false };
     if (!fe){
+      let result = false;
       try {
         fs.mkdirSync(params.dirPath, options);
       } catch(error) {
-        reject(error);
+        reject({ msg:`Ocorreu um erro na criação do diretório ${error}`, success: false });
+      } finally {
+        resolve({ msg: `Diretório ${params.dirPath} criado!`, success: true})
       }
     } else {
-      resolve(false);
+      resolve({msg: `O Diretório já existe.`, success: true});
     }
   });
 };
 
 const openFolder = params => {
-  const fileExplorer = os.platform === WIN32 ? 'explorer' : 'xdg-open';
+  const fileExplorer = os.platform() === WIN32 ? 'explorer' : 'xdg-open';
   const process = spawn(fileExplorer, [`${params.path}`], { detached: true, stdio: 'ignore' });
   process.unref();
 };

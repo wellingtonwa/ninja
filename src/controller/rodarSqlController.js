@@ -46,8 +46,7 @@ router.post('/', async function (req, res) {
         const sql = req.body.sql;
         const configs = await getConfigs();
         
-        const pool = new Pool({...configs, database:nomeBanco});        
-        console.log(configs);
+        const pool = new Pool({...configs, database:nomeBanco});
         pool.query(sql, (err, res) => {
             if(res) {
                 emitirMensagemSemFmt(req, "SCRIPT EXECUTADO!");
@@ -56,6 +55,7 @@ router.post('/', async function (req, res) {
             }
         })
     }
+    res.send("ok");
 });
 
 function emitirMensagemSemFmt(req, msg) {

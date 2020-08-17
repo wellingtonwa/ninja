@@ -6,6 +6,7 @@ const exec = util.promisify(require('child_process').exec);
 const download = require("../utils/download");
 const getConfigs = require("../utils/pgFunctions").getConfigs;
 const createdb = require("../utils/pgFunctions").createdb;
+const createdbDocker = require("../utils/pgFunctions").createDBDocker;
 const dropdb = require("../utils/pgFunctions").drop;
 const getFileContent = require("../utils/ioUtils").getFileContent;
 const copyFile = require("../utils/ioUtils").copyFile;
@@ -15,7 +16,7 @@ const REGEX_ZIP_FILE = ".*\.zip$";
 const REGEX_ARQUIVOBACK = /.*\.backup$/g;
 
 const caminhoUpload = path.resolve(__dirname, '../../uploads');
-const backup_folder_docker = `/home/wellingtonwa/dev/docker/postgres/bkp/database.backup`;
+const backup_folder_docker = `d:\\docker\\postgres\\bkp\\database.backup`;
 
 /**
  * Faz tudo o processo de restaurar um banco de dados
@@ -42,7 +43,8 @@ const restaurar = async (params) => {
     console.log(arquivoBackup);
 
     sendMsg(params, `Copiando: cp -f ${arquivoBackup} /home/wellingtonwa/dev/docker/postgres/bkp/database.backup`);
-    let retorno = await exec(`sleep 0.2 && cp -f ${arquivoBackup} /home/wellingtonwa/dev/docker/postgres/bkp/database.backup`);
+    // let retorno = await exec(`sleep 0.2 && cp -f ${arquivoBackup} /home/wellingtonwa/dev/docker/postgres/bkp/database.backup`);
+    let retorno = await exec(`copy ${arquivoBackup} ${backup_folder_docker}`);
     // let retorno  = await exec(`docker cp "${arquivoBackup}" postgres:/opt/bkp`, {maxBuffer: 1024 * 50000})
     //     .catch(err => sendMsg(params, `Erro >>>>> ${err}`));
     sendMsg(params, `Terminou a cópia`);
@@ -52,7 +54,7 @@ const restaurar = async (params) => {
     try {
         // Tentando apagar base de dados
         sendMsg(params, `Tentando apagar o banco de dados ${params.nomeBanco}`);
-        await dropdb(params.nomeBanco)
+        await droparDockerDatabase(params);
     } catch (ignore) {
         sendMsg(params, `O banco de dados ${params.nomeBanco} não existe ou está em uso`);
     }
@@ -60,7 +62,7 @@ const restaurar = async (params) => {
     try{
         // Tentando criar a base de dados
         sendMsg(params, `criando o banco de dados ${params.nomeBanco}`);
-        await createdb(params.nomeBanco);
+        await createdbDocker(params);
     } catch(error) {
         sendMsg(params, `Erro ao criar o banco: ${error}`);
         return;
@@ -149,8 +151,16 @@ const copiarBackupContainer = async (params) => {
  */
 const restoreFileDocker = async (params) => {
     const configs = await getConfigs();
-    return exec(`/usr/bin/docker exec -t ${configs.host} sh -c 'pg_restore -U ${configs.user} -v --dbname ${params.nomeBanco} /opt/bkp/database.backup'`, {maxBuffer: 1024 * 50000});
+    return exec(`docker exec -t postgres sh -c "pg_restore -U ${configs.user} -v --dbname ${params.nomeBanco} /opt/bkp/database.backup"`, {maxBuffer: 1024 * 50000});
     //return exec(`docker exec postgres pg_restore -h ${configs.host} -p ${configs.port} -U ${configs.user} -d  "/opt/bkp/database.backup"`, {maxBuffer: 1024 * 50000});
+}
+
+const droparDockerDatabase = (params) => {
+    return exec(`docker exec -t postgres psql -U postgres -c "DROP DATABASE ${params.nomeBanco}"`);
+}
+
+const criarDockerDatabase = (params) => {
+    return exec(`docker exec -t postgres psql -U postgres -c "CREATE DATABASE ${params.nomeBanco}"`);
 }
 
 /**
@@ -178,4 +188,12 @@ const rodarSql = (params) => {
     })
 }
 
-module.exports = { rodarSql, downloadScriptObrigatorio, restoreFile, descompactar, restaurar };
+module.exports = {
+    rodarSql,
+    downloadScriptObrigatorio,
+    restoreFile,
+    descompactar,
+    restaurar,
+    droparDockerDatabase,
+    criarDockerDatabase
+};

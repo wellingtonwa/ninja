@@ -1,6 +1,6 @@
 const Payload = require('../utils/Payload');
 const { upload } = require('../utils/wetransfer_upload');
-const dumpDataBase = require('../utils/pgFunctions').dumpDataBase;
+const dumpDataBaseDocker = require('../utils/pgFunctions').dumpDataBaseDocker;
 
 const uploadFile = async (params) => {    
     sendMsg(params, `Preparando o upload do arquivo`);
@@ -42,7 +42,7 @@ const backupDataBase = async (params) => {
         sendMsg(params, "Tudo ok! Vamos iniciar a execução do procedimento!");
     
         try {
-            const result_backup = await dumpDataBase(params);
+            const result_backup = await dumpDataBaseDocker(params);
             sendMsg(params, "BACKUP EM EXECUÇÃO!");
             sendMsg(params, "BACKUP CONCLUÍDO!!!")
             resolve(result_backup);
