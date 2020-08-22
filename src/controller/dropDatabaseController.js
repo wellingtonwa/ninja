@@ -33,6 +33,10 @@ router.post('/apagar', async function(req, res) {
     res.send(JSON.stringify({resultato: "ok"}));
 });
 
+router.post('/abrirPasta', async (req, res) => {
+   openFolder({path: path.resolve("d:\\downloads\\lixo", `caso-${req.body.numero_caso}`)});
+});
+
 function emitirMensagemSemFmt(req, msg) {
     req.app.io.emit('db restore', msg);
 }

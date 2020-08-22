@@ -52,10 +52,8 @@ const getDbnames = async () => {
                         ORDER BY datname`;
         pool.query(query, (err, resp) => {
             if (err) {
-                console.log(`Erro ${err}`);
                 reject(Error(err));
             } else {
-                console.log(`Funcionou : ${JSON.stringify(resp, null, 2)}`)
                 resolve(resp.rows);
             }
         });

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const path = require("path");
+const perf = require('execution-time')();
 const download = require('../utils/download');
 const restaurarService  = require("../service/restaurarBase").restaurar;
 const getDirectLink = require("../utils/wetransfer_download").run;
@@ -35,9 +36,13 @@ async function verificarTipoLink(link, req) {
     if (link.match(WETRANSFER_URL_REGEX)) {
         restaurarWetransfer(link, req);
     } else {
+        perf.start('download');
         emitirMensagemSemFmt(req, `Fazendo download do arquivo... ${link}`);
         var arquivoZip = await download(link, caminhoUpload);
+        emitirMensagemSemFmt(req, `> Tempo de download ${perf.stop('download').time} ms`);
+        perf.start('restauração');
         await restaurarService({filePath: arquivoZip.filePath, nomeBanco, msg: dispatchMsg});
+        emitirMensagemSemFmt(req, `> Tempo de restauração ${perf.stop('restauração').time} ms`);
     }
 }
 
