@@ -10,7 +10,7 @@ const { getFileContent } = require('../utils/ioUtils');
 const REGEX_WITHESPACES = /( |\t)/g;
 const REGEX_EMPTYLINES = /^(\r\n|\n)/g;
 const CAMINHO_CONFIG = path.resolve(__dirname, "../../.env");
-const CAMINHO_CONFIG_JSON = path.resolve(__dirname, "../../configs/files/config.json");
+const CAMINHO_CONFIG_JSON = path.resolve(__dirname, "../../configs/config.json");
 
 
 router.get('/', async function(req, res) {
@@ -23,8 +23,8 @@ router.get('/', async function(req, res) {
 router.post('/', async function (req, res) {
     await saveDadosArquivoConfigJson(req.body);
     var configs = await getDadosArquivoConfig();
-
-    res.render('configs/index', {configs:configs, mensagem: "Informações Recebidas"});
+    console.log("salvando");
+    res.send("ok");
 });
 
 router.get('/dados', async function(req, res) {
@@ -36,6 +36,7 @@ router.get('/dados', async function(req, res) {
 
 router.get('/dados-json', async function(req, res) {
     var configs = await getDadosConfigJson();
+    console.log("get confiigs", configs);
     res.send(JSON.parse(configs));
 });
 

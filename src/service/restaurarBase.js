@@ -16,7 +16,7 @@ const REGEX_ZIP_FILE = ".*\.zip$";
 const REGEX_ARQUIVOBACK = /.*\.backup$/g;
 
 const caminhoUpload = path.resolve(__dirname, '../../uploads');
-const backup_folder_docker = `d:\\docker\\postgres\\bkp\\database.backup`;
+const backup_folder_docker = `e:\\docker\\postgres\\bkp\\database.backup`;
 
 /**
  * Faz tudo o processo de restaurar um banco de dados
