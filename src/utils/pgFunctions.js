@@ -78,7 +78,7 @@ const drop = async (db) => {
 const createdb = async (db) => {
     const configs = await getConfigs();
     return pgtools.createdb(configs, db);
-}
+};
 
 const createDBDocker = async (params) => {
     return new Promise((resolve, reject) => {
@@ -90,7 +90,7 @@ const createDBDocker = async (params) => {
             resolve({stdout, stderr});
         });
     })
-}
+};
 
 const dumpDataBase = (params) => {
     return new Promise((resolve, reject) => {
@@ -101,17 +101,18 @@ const dumpDataBase = (params) => {
             resolve({stdout, stderr});
           });
     })
-}
+};
 
 const dumpDataBaseDocker = (params) => {
     return new Promise((resolve, reject) => {
-        exec(`docker exec -t postgres sh -c "pg_dump -h localhost -p 5432 -U postgres -F c -b -v -f "/opt/bkp/${params.nomeBanco}.backup" ${params.nomeBanco}"`, (error, stdout, stderr) => {
+        console.log(`docker exec -t postgres sh -c "pg_dump -h localhost -p 5432 -U postgres -F c -b -f '/opt/bkp/${params.nomeBanco}.backup' ${params.nomeBanco}"`);
+        exec(`docker exec -t postgres sh -c "pg_dump -h localhost -p 5432 -U postgres -F c -b -f '/opt/bkp/${params.nomeBanco}.backup' ${params.nomeBanco}"`, (error, stdout, stderr) => {
             if (error) {
               reject(error);
             }
             resolve({stdout, stderr});
           });
     })
-}
+};
 
 module.exports = { dropAll, drop,  getDbnames, getConfigs, createdb, dumpDataBase, createDBDocker, dumpDataBaseDocker };

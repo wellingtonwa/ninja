@@ -12,7 +12,7 @@ var io;
 
 router.post('/', async function(req, res) {
     const config = await getConfigs();
-    console.log(config.DB_BKP_FOLDER);
+    console.log("Caminho BKP", config.DB_BKP_FOLDER);
     io = req.app.io;
     if (req.body.nome_banco) {
         var params = {nomeBanco: req.body.nome_banco, filePath: config.DB_BKP_FOLDER, msg: dispatchMsg}

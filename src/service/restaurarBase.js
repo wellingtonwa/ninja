@@ -8,7 +8,7 @@ const getConfigs = require("../utils/pgFunctions").getConfigs;
 const createdb = require("../utils/pgFunctions").createdb;
 const createdbDocker = require("../utils/pgFunctions").createDBDocker;
 const dropdb = require("../utils/pgFunctions").drop;
-const getFileContent = require("../utils/ioUtils").getFileContent;
+const { getFileContent, isWindows } = require("../utils/ioUtils");
 const copyFile = require("../utils/ioUtils").copyFile;
 const { Pool } = require('pg');
 
@@ -16,7 +16,8 @@ const REGEX_ZIP_FILE = ".*\.zip$";
 const REGEX_ARQUIVOBACK = /.*\.backup$/g;
 
 const caminhoUpload = path.resolve(__dirname, '../../uploads');
-const backup_folder_docker = `e:\\docker\\postgres\\bkp\\database.backup`;
+// const backup_folder_docker = `/home/wellington/dev/docker/postgres/bkp/`;
+const backup_folder_docker = `c:\\docker\\postgres\\bkp\\database.backup`;
 
 /**
  * Faz tudo o processo de restaurar um banco de dados
@@ -27,6 +28,7 @@ const restaurar = async (params) => {
     let arquivoBackup;
     try {        
         // Verificando se um arquivo compactado
+        console.log(params.filePath.match(REGEX_ZIP_FILE));
         if (params.filePath.match(REGEX_ZIP_FILE)) {
             sendMsg(params, `Descompactando o arquivo ${params.filePath} em ${caminhoUpload}`);
             arquivoBackup = await descompactar(params, caminhoUpload);
@@ -44,7 +46,13 @@ const restaurar = async (params) => {
 
     sendMsg(params, `Copiando: cp -f ${arquivoBackup} /home/wellingtonwa/dev/docker/postgres/bkp/database.backup`);
     // let retorno = await exec(`sleep 0.2 && cp -f ${arquivoBackup} /home/wellingtonwa/dev/docker/postgres/bkp/database.backup`);
-    let retorno = await exec(`copy ${arquivoBackup} ${backup_folder_docker}`);
+    console.log(`sleep 1.2 && copy ${arquivoBackup} ${backup_folder_docker}`);
+    // await new Promise((resolve, reject) => {
+    //     setTimeout(async () => {
+    //         resolve(await exec(`copy ${arquivoBackup} ${backup_folder_docker}`));
+    //     }, 500);
+    // });
+    let retorno = isWindows() ? await exec(`copy ${arquivoBackup} ${backup_folder_docker}`) : await exec(`sleep 1.2 && cp ${arquivoBackup} /home/wellington/dev/docker/postgres/bkp/database.backup`);
     // let retorno  = await exec(`docker cp "${arquivoBackup}" postgres:/opt/bkp`, {maxBuffer: 1024 * 50000})
     //     .catch(err => sendMsg(params, `Erro >>>>> ${err}`));
     sendMsg(params, `Terminou a cópia`);
@@ -151,7 +159,7 @@ const copiarBackupContainer = async (params) => {
  */
 const restoreFileDocker = async (params) => {
     const configs = await getConfigs();
-    return exec(`docker exec -t postgres sh -c "pg_restore -U ${configs.user} -v --dbname ${params.nomeBanco} /opt/bkp/database.backup"`, {maxBuffer: 1024 * 50000});
+    return exec(`docker exec -t postgres sh -c "pg_restore -U ${configs.user} --dbname ${params.nomeBanco} /opt/bkp/database.backup"`, {maxBuffer: 1024 * 50000});
     //return exec(`docker exec postgres pg_restore -h ${configs.host} -p ${configs.port} -U ${configs.user} -d  "/opt/bkp/database.backup"`, {maxBuffer: 1024 * 50000});
 }
 

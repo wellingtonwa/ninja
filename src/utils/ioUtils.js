@@ -112,4 +112,9 @@ const openFolder = params => {
   process.unref();
 };
 
-module.exports = { listFiles, apagarArquivo, saveDownloadedFile, getFileContent, createFolderIfNotExists, copyFile, openFolder };
+const isWindows = () => {
+  return os.platform() === WIN32
+}
+
+
+module.exports = { listFiles, apagarArquivo, saveDownloadedFile, getFileContent, createFolderIfNotExists, copyFile, openFolder, isWindows };

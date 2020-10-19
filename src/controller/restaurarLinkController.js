@@ -38,7 +38,12 @@ async function verificarTipoLink(link, req) {
     } else {
         perf.start('download');
         emitirMensagemSemFmt(req, `Fazendo download do arquivo... ${link}`);
-        var arquivoZip = await download(link, caminhoUpload);
+
+        try {
+            var arquivoZip = await download(link, caminhoUpload);
+        } catch (e) {
+            console.log(e);
+        }
         emitirMensagemSemFmt(req, `> Tempo de download ${perf.stop('download').time} ms`);
         perf.start('restauração');
         await restaurarService({filePath: arquivoZip.filePath, nomeBanco, msg: dispatchMsg});

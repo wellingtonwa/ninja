@@ -44,9 +44,10 @@ const backupDataBase = async (params) => {
         try {
             const result_backup = await dumpDataBaseDocker(params);
             sendMsg(params, "BACKUP EM EXECUÇÃO!");
-            sendMsg(params, "BACKUP CONCLUÍDO!!!")
+            sendMsg(params, "BACKUP CONCLUÍDO!!!");
             resolve(result_backup);
         } catch (error) {
+            sendMsg(params, "ERRO: " + error.message);
             reject(error);
         };
     });
