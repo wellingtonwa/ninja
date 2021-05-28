@@ -34,7 +34,7 @@ async function getDownloadUrl(link) {
             if (params.length === 2) {
                 transferId = params[0];
                 securityHash = params[1];
-                var dadosJson = {security_hash: securityHash};
+		var dadosJson = {security_hash: securityHash};
                 urlDownload = util.format(WETRANSFER_DOWNLOAD_URL, transferId);
             } 
         }
@@ -43,7 +43,7 @@ async function getDownloadUrl(link) {
 
 function getRequestParam() {
     return new Promise((resolve, reject) => {
-        got.get('https://wetransfer.com/').then(async data => {
+	got.get('https://wetransfer.com/').then(async data => {
             var regexCSRF = /name="csrf-token" content="([^"]+)/g;
             csrfToken = regexCSRF.exec(data.body)[1];
             auxcookie = data.headers['set-cookie'];
@@ -67,7 +67,7 @@ async function getDirectLink() {
         urlDownload,
         {
             method: 'post',
-            body:  JSON.stringify({'security_hash': securityHash}),
+            body:  JSON.stringify({'security_hash': securityHash, 'intent': "entire_transfer"}),
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-Token': csrfToken
@@ -78,7 +78,7 @@ async function getDirectLink() {
 
 function getFileName(directLink) {
     var splitdl = directLink.split("/");
-    return /(.*)(?=\?cf)/ig.exec(splitdl.slice(-1).pop())[1];
+    return /(.*)(?=\?token)/ig.exec(splitdl.slice(-1).pop())[1];
 }
 
 function run(link) {

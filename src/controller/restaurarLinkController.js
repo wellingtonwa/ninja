@@ -1,8 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const path = require("path");
-const perf = require('execution-time')();
-const download = require('../utils/download');
+const perf = require('execution-time')(); const download = require('../utils/download');
 const restaurarService  = require("../service/restaurarBase").restaurar;
 const getDirectLink = require("../utils/wetransfer_download").run;
 const getWTFileName = require("../utils/wetransfer_download").getFileName;
@@ -15,23 +14,21 @@ var io;
 
 router.post('/', function(req, res) {
     io = req.app.io;
-    emitirMensagemSemFmt(req, "Requisição Recebida!\nAguarde....");    
+    emitirMensagemSemFmt(req, "Requisição Recebida!\nAguarde....");
     const nomeBanco = req.body['nome-banco'];
     if(isNomeBancoValido(nomeBanco) && req.body.link){
         restaurar(req);
     } else {
         emitirMensagemSemFmt(canal, "<br/>Preciso dos campos preenchidos e válidos. ¬¬");    
-    }
-    res.render('restaurar/form');
-});
+    } res.render('restaurar/form'); });
 
 async function restaurar(req) {
     const link = req.body.link;
     verificarTipoLink(link, req);
 
 };
-
-async function verificarTipoLink(link, req) {
+ async function verificarTipoLink(link, req) {
+    io = req.app.io;
     const nomeBanco = req.body['nome-banco'];
     if (link.match(WETRANSFER_URL_REGEX)) {
         restaurarWetransfer(link, req);
@@ -54,6 +51,7 @@ async function verificarTipoLink(link, req) {
 async function restaurarWetransfer(link, req) {
     const nomeBanco = req.body['nome-banco'];
     const direct_link = await getDirectLink(link);
+    console.log("Chegou aqui");
     const nomeArquivo = getWTFileName(direct_link.direct_link);
     emitirMensagemSemFmt(req, `Fazendo download do arquivo do ${nomeArquivo} ...`);
     const pathFile = path.join(__dirname, `../../uploads/${nomeArquivo}`);
@@ -69,15 +67,12 @@ async function restaurarWetransfer(link, req) {
 }
 
 function emitirMensagemSemFmt(req, msg) {
-    req.app.io.emit(canal, msg);
-} 
-
-function dispatchMsg(msg) {
     io.emit(canal, msg);
-}
-
-router.get('/', function(req, res) {
-    res.render('restaurar-link/form');
+}  
+function dispatchMsg(msg) { io.emit(canal, msg);
+} 
+router.get('/', function(req, res) { 
+    res.render('restaurar-link/form'); 
 });
 
 function isNomeBancoValido(nomeBanco){

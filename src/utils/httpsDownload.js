@@ -18,7 +18,7 @@ async function download(url, dest, hasFileNameOnPath = false) {
 
             response.on("data", function(chunk) {
                 body += chunk;
-                cur += chunk.length;
+                cur += chunk && chunk.length;
                 console.log("Downloading " + (100.0 * cur / len).toFixed(2) + " percent " + (cur / 1048576).toFixed(2) + " mb" + ". Total size: " + total.toFixed(2) + " mb");
             });
 

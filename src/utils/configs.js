@@ -6,7 +6,7 @@ const readFile = util.promisify(fs.readFile);
 const REGEX_WITHESPACES = /( |\t)/g;
 const REGEX_EMPTYLINES = /^(\r\n|\n)/g;
 const CAMINHO_CONFIG = path.resolve(__dirname, "../../.env");
-const CAMINHO_CONFIG_JSON = path.resolve(__dirname, "../../config.json");
+const CAMINHO_CONFIG_JSON = path.resolve(__dirname, "../../configs/config.json");
 
 async function getDadosArquivoConfig() {
     
