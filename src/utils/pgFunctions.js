@@ -1,29 +1,27 @@
 const pgtools = require('pgtools');
 const { Pool } = require('pg');
 const exec = require('child_process').exec;
-const prefix = process.env.DB_PREFIX;
-const ignoreDbs = process.env.IGNORE_DBS
-const getDadosArquivoConfig =  require("../controller/configsController").getDadosArquivoConfig;
+const { getConfigs: getConfigJson } =  require('../utils/configs');
 
 const getConfigs = async () => {
-    dados = await getDadosArquivoConfig();
+    const dados = await getConfigJson();;
     return {
-        user: dados.filter(dd => dd.property === 'DB_USER')[0].value,
-        password: dados.filter(dd => dd.property === 'DB_PASSWORD')[0].value,
-        port: dados.filter(dd => dd.property === 'DB_PORT')[0].value,
-        host: dados.filter(dd => dd.property === 'DB_HOST')[0].value,
-        database: dados.filter(dd => dd.property === 'DB_DATABASE')[0].value
+        user: dados['DB_USER'],
+        password: dados['DB_PASSWORD'],
+        port: dados['DB_PORT'],
+        host: dados['DB_HOST'],
+        database: dados['DB_DATABASE']
     };
 };
 
 const getDatabasePrefix = async () => {
-    dados = await getDadosArquivoConfig();
-    return dados.filter(dd => dd.property === 'DB_PREFIX')[0].value;  
+    dados = await getConfigJson();
+    return dados['DB_PREFIX'];
 };
 
 const getIngoredDbs = async () => {
-    dados = await getDadosArquivoConfig();
-    return dados.filter(dd => dd.property === 'IGNORE_DBS')[0].value;  
+    dados = await getConfigJson()   ;
+    return dados.IGNORE_DBS;
 };
 
 const getConnection = async () => {

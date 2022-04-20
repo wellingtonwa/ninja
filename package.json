@@ -29,7 +29,7 @@
     "request": "^2.88.0",
     "request-progress": "^3.0.0",
     "request-promise": "^4.2.5",
-    "socket.io": "^2.3.0",
+    "socket.io": "^4.4.1",
     "tough-cookie": "^3.0.1",
     "xml2js": "^0.4.23"
   },

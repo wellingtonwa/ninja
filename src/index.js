@@ -9,7 +9,6 @@ var restaurarController = require('./controller/restaurarController');
 var restaurarLinkController = require('./controller/restaurarLinkController');
 var configsController = require('./controller/configsController');
 var rodarSqlController = require('./controller/rodarSqlController');
-var sqlDaVersaoController = require('./controller/sqlDaVersaoController');
 var limparPastaUploadController = require('./controller/limparPastaUploadController');
 var dropDatabaseController = require('./controller/dropDatabaseController');
 var uploadDatabaseController = require('./controller/uploadDatabaseController');
@@ -31,7 +30,6 @@ app.use('/restaurar', restaurarController);
 app.use('/restaurar-link', restaurarLinkController);
 app.use('/configs', configsController.router);
 app.use('/rodar-sql', rodarSqlController);
-app.use('/sql-versao', sqlDaVersaoController);
 app.use('/limpar-pasta', limparPastaUploadController);
 app.use('/apagar-db', dropDatabaseController);
 app.use('/upload', uploadDatabaseController);
@@ -39,7 +37,7 @@ app.use('/mantis', casoMantisController);
 
 var server = app.listen(5000);
 
-var io = socket(server);
+var io = socket(server, { cors: { origins: '*:*' }});
 
 io.on('connection', (socket) => {
     console.log("made socket connection");

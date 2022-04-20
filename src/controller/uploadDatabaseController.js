@@ -5,7 +5,7 @@ const path = require('path');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const { uploadFile, backupDataBase } = require('../service/uploadBase');
-const { getDadosArquivoConfig, getConfigs } = require("../utils/configs");
+const { getConfigs } = require("../utils/configs");
 
 const canal = 'db restore';
 var io;

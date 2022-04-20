@@ -15,6 +15,7 @@ async function getDadosArquivoConfig() {
         dadosArquivoConfig = fs.readFileSync(CAMINHO_CONFIG, "utf-8");
     } catch (error) {
         res.send(error);
+        console.error(error);
         return;
     }
     dadosArquivoConfig =  dadosArquivoConfig.replace(REGEX_WITHESPACES, '').replace(REGEX_EMPTYLINES, '')

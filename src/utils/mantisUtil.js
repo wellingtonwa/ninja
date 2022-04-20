@@ -1,22 +1,19 @@
 const puppeteer = require('puppeteer');
-const { getDadosArquivoConfig }  = require('./configs');
+const { getConfigs }  = require('./configs');
 const LOGIN_PAGE = "/login.php";
 const ISSUE_PAGE = "/view.php?id=%%";
-const MANTIS_BASEURL_ATTR = 'MANTIS_BASE_URL';
 const REGEX_ISSUENUMBER = /(?<=.*)[0-9]{5}$/;
 
 // Para obter a contagem de tempo
 // document.querySelectorAll('li[class="flip-clock-active"]')[4].innerText
 
 const getDadosCasos = async (params) => {
-    const MTUSER_ATTR = 'MANTIS_USER';
-    const MTPWD_ATTR = 'MANTIS_PASSWORD';
+
+    const dadosArquivoConfig = await getConfigs();
     
-    const dadosArquivoConfig = await getDadosArquivoConfig();
-    
-    const mantisUser = dadosArquivoConfig.find(it => it.property == MTUSER_ATTR).value;
-    const mantisPwd = dadosArquivoConfig.find(it => it.property == MTPWD_ATTR).value;
-    const baseURL = dadosArquivoConfig.find(it => it.property == MANTIS_BASEURL_ATTR).value;
+    const mantisUser = dadosArquivoConfig.MANTIS_USER;
+    const mantisPwd = dadosArquivoConfig.MANTIS_PASSWORD;
+    const baseURL = dadosArquivoConfig.MANTIS_BASE_URL;
     
     const browser = await puppeteer.launch({headless: true,
         args: [
@@ -64,8 +61,8 @@ const getDadosCasos = async (params) => {
 };
 
 const obterDadosCaso = async (browser, issue_number) => {
-    const dadosArquivoConfig = await getDadosArquivoConfig();
-    const baseURL = dadosArquivoConfig.find(it => it.property == MANTIS_BASEURL_ATTR).value;
+    const dadosArquivoConfig = await getConfigs();
+    const baseURL = dadosArquivoConfig.MANTIS_BASE_URL;
     const page = await browser.newPage();
     try {
         await page.goto(`${baseURL}${ISSUE_PAGE.replace('%%', issue_number)}`, {awaitUntil: 'networkidle2'});

@@ -7,13 +7,14 @@ const util = require('util');
 const {droparDockerDatabase} = require('../service/restaurarBase');
 const exec = util.promisify(require('child_process').exec);
 const { openFolder, createFolderIfNotExists } = require('../utils/ioUtils');
-const { getDadosArquivoConfig } = require('../utils/configs');
+const { getConfigs } = require('../utils/configs');
 const path = require('path');
 
 router.post('/abrir-pasta', async (req, res) =>  {
-    const configs = await getDadosArquivoConfig();
+    const configs = await getConfigs();
+    emitirMensagemSemFmt(req, "Abrindo Pasta");
     // Tenta criar o diretório caso ele não exista
-    const diretorio = path.resolve( configs.find(it => it.property === 'ISSUE_FOLDER_PATH' ).value, `caso-${req.body.numero_caso}`);
+    const diretorio = path.resolve( configs.ISSUE_FOLDER_PATH, `caso-${req.body.numero_caso}`);
 
     let result = await createFolderIfNotExists({dirPath: diretorio })
     openFolder({path: diretorio});

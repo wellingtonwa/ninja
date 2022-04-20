@@ -2,21 +2,21 @@ var express = require('express');
 var router = express.Router();
 const { Pool } = require('pg');
 const { getDbnames } = require('../utils/pgFunctions');
-const getDadosArquivoConfig =  require("./configsController").getDadosArquivoConfig;
+const { getConfigs: getConfigJson } =  require('../utils/configs');
 
 const canal = 'db restore';
 
+
 const getConfigs = async () => {
-    dados = await getDadosArquivoConfig();
+    const dados = await getConfigJson();;
     return {
-        user: dados.filter(dd => dd.property === 'DB_USER')[0].value,
-        password: dados.filter(dd => dd.property === 'DB_PASSWORD')[0].value,
-        port: dados.filter(dd => dd.property === 'DB_PORT')[0].value,
-        host: dados.filter(dd => dd.property === 'DB_HOST')[0].value,
-        database: dados.filter(dd => dd.property === 'DB_DATABASE')[0].value
+        user: dados['DB_USER'],
+        password: dados['DB_PASSWORD'],
+        port: dados['DB_PORT'],
+        host: dados['DB_HOST'],
+        database: dados['DB_DATABASE']
     };
 };
-
 router.get('/', async function(req, res) {
     var dbNames = await getDbnames();
     res.render('rodarSql/index', {bases: dbNames});
