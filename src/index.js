@@ -13,6 +13,7 @@ var limparPastaUploadController = require('./controller/limparPastaUploadControl
 var dropDatabaseController = require('./controller/dropDatabaseController');
 var uploadDatabaseController = require('./controller/uploadDatabaseController');
 var casoMantisController = require('./controller/casoMantisController');
+var calimaModelController = require('./controller/calimaModelController');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -34,6 +35,7 @@ app.use('/limpar-pasta', limparPastaUploadController);
 app.use('/apagar-db', dropDatabaseController);
 app.use('/upload', uploadDatabaseController);
 app.use('/mantis', casoMantisController);
+app.use('/calima-model', calimaModelController);
 
 var server = app.listen(5000);
 
