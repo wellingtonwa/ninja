@@ -176,6 +176,7 @@ const criarDockerDatabase = (params) => {
  */
 const downloadScriptObrigatorio = (params) => {
   // Rodando o script obrigatório
+  // return download("https://www.dropbox.com/s/euy5my5b9wsstlp/sql-ambiente-dev-calima.sql?dl=1", params.filePath);
   return download("https://www.dropbox.com/s/4ub6n18no37o356/scripts.sql?dl=1", params.filePath);
 }
 

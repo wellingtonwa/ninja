@@ -16,9 +16,11 @@ router.post('/abrir-pasta', async (req, res) =>  {
     // Tenta criar o diretório caso ele não exista
     const diretorio = path.resolve( configs.ISSUE_FOLDER_PATH, `caso-${req.body.numero_caso}`);
 
-    let result = await createFolderIfNotExists({dirPath: diretorio })
-    openFolder({path: diretorio});
-    res.status(200).send(result);
+    createFolderIfNotExists({dirPath: diretorio }).then(result => {
+        openFolder({path: diretorio});
+        res.status(200).send(result);
+    }).catch(reason => res.status(400).send(reason));
+
 });
 
 router.post('/apagar', async function(req, res) {
