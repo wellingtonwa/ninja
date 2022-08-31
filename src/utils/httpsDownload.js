@@ -34,7 +34,12 @@ async function download(url, dest, hasFileNameOnPath = false) {
                 resolve(download(novaUrl, dest, hasFileNameOnPath));
             }
             else if (response.statusCode === 302) {
-                resolve(download(response.headers.location, dest, hasFileNameOnPath));
+                if (response.headers.location.match('^http.*')) {
+                    resolve(download(response.headers.location, dest, hasFileNameOnPath));
+                } else {
+                    resolve(download(`${response.req.protocol}//${response.req.host}${response.headers.location}`, dest, hasFileNameOnPath));
+                }
+                
             }
         });
     });
